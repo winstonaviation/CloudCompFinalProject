@@ -1,0 +1,54 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: python3.12
+    MemorySize: 512
+    Timeout: 30
+    Environment:
+      Variables:
+        TEST_BUCKET: !Ref TestBucket
+
+Resources:
+  ApiHandler:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/api_handler/
+      Handler: handler.handler
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            Path: /api
+            Method: GET
+
+  ImageResizer:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/image_resizer/
+      Handler: handler.handler
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref TestBucket
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            Path: /resize
+            Method: GET
+
+  CpuSort:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/cpu_sort/
+      Handler: handler.handler
+      Events:
+        Api:
+          Type: HttpApi
+          Properties:
+            Path: /sort
+            Method: GET
+
+  TestBucket:
+    Type: AWS::S3::Bucket
