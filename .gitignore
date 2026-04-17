@@ -1,0 +1,9 @@
+.env
+AWS/node_modules
+AWS/dist
+AWS/.env
+AWS/.env.local
+AWS/.env.development
+AWS/.env.test
+AWS/.env.production
+/venv
