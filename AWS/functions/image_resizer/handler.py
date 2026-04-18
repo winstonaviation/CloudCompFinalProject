@@ -1,9 +1,6 @@
 import json, os, boto3
 from PIL import Image
 from io import BytesIO
-import load_dotenv
-
-load_dotenv()
 
 s3 = boto3.client("s3")
 BUCKET = os.environ["TEST_BUCKET"]
