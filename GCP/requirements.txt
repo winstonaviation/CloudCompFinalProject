@@ -1,0 +1,3 @@
+google-cloud-monitoring
+google-cloud-storage
+Pillow==10.3.0
