@@ -1,3 +1,4 @@
+import json
 import os
 import re
 from datetime import datetime, timedelta, timezone
@@ -5,9 +6,11 @@ from datetime import datetime, timedelta, timezone
 import google.auth
 from google.api_core import exceptions as gcloud_exceptions
 from google.cloud import monitoring_v3
+from google.cloud import storage
 
 
 client = monitoring_v3.MetricServiceClient()
+storage_client = storage.Client()
 PROJECT_ID_PATTERN = re.compile(r"^[a-z][a-z0-9-]{4,28}[a-z0-9]$")
 ALIGNER = monitoring_v3.Aggregation.Aligner
 
@@ -18,6 +21,7 @@ def resolve_project_id():
         os.environ.get("GOOGLE_CLOUD_PROJECT"),
         os.environ.get("GCP_PROJECT"),
         os.environ.get("GCLOUD_PROJECT"),
+        storage_client.project,
     ]
 
     _, auth_project = google.auth.default()
@@ -62,8 +66,7 @@ def extract_typed_value(typed_value):
     return None
 
 
-def get_function_metrics(region, function_name, minutes=30, project_id=None):
-    project_id = project_id or resolve_project_id()
+def get_function_metrics(project_id, region, function_name, minutes=30):
     project_name = f"projects/{project_id}"
     end_time = datetime.now(timezone.utc)
     start_time = end_time - timedelta(minutes=minutes)
@@ -113,16 +116,103 @@ def get_function_metrics(region, function_name, minutes=30, project_id=None):
                 "aggregation": aggregation,
             }
         )
+        metric_points = []
         try:
             series = client.list_time_series(request=request)
-            results[name] = [
-                {
-                    "metric": extract_typed_value(point.value),
-                    "interval_end": point.interval.end_time.isoformat(),
-                }
-                for item in series
-                for point in item.points
-            ]
+            for item in series:
+                for point in item.points:
+                    metric_points.append(
+                        {
+                            "metric": extract_typed_value(point.value),
+                            "aligner": ALIGNER(metric_config["aligner"]).name,
+                            "interval_end": point.interval.end_time.isoformat(),
+                        }
+                    )
         except gcloud_exceptions.NotFound as exc:
-            results[name] = [{"metric": None, "warning": str(exc)}]
+            metric_points = [
+                {
+                    "metric": None,
+                    "aligner": ALIGNER(metric_config["aligner"]).name,
+                    "warning": str(exc),
+                }
+            ]
+
+        results[name] = metric_points
+
     return results
+
+
+def handler(request):
+    try:
+        project_id = resolve_project_id()
+        region = os.environ.get("REGION", "us-central1").strip()
+        bucket_name = request.args.get("bucket", "").strip()
+        if not bucket_name:
+            bucket_name = os.environ.get("BUCKET_NAME", "").strip()
+        if not bucket_name:
+            bucket_name = os.environ.get("TEST_BUCKET", "").strip()
+
+        if not bucket_name:
+            bucket_name = "gcp-testing-kt"
+
+        print(f"DEBUG: Using Project ID: [{project_id}]")
+
+        functions_to_check = [
+            "cpu-sort",
+            "image-resizer",
+            "api-handler",
+        ]
+
+        all_results = {
+            "project_id": project_id,
+            "region": region,
+            "collected_at": datetime.now(timezone.utc).isoformat(),
+            "services": {},
+        }
+
+        for function_name in functions_to_check:
+            all_results["services"][function_name] = get_function_metrics(
+                project_id=project_id,
+                region=region,
+                function_name=function_name,
+                minutes=30,
+            )
+
+        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%SZ")
+        blob_name = f"metrics/{timestamp}.json"
+
+        bucket = storage_client.bucket(bucket_name)
+        if not bucket.exists():
+            raise ValueError(
+                f'Bucket "{bucket_name}" does not exist. '
+                "Create it first or redeploy with BUCKET_NAME set to an existing bucket."
+            )
+
+        blob = bucket.blob(blob_name)
+        blob.upload_from_string(
+            json.dumps(all_results, indent=2),
+            content_type="application/json",
+        )
+
+        return (
+            json.dumps(
+                {
+                    "status": "ok",
+                    "saved_to": f"gs://{bucket_name}/{blob_name}",
+                    "services_checked": functions_to_check,
+                }
+            ),
+            200,
+            {"Content-Type": "application/json"},
+        )
+    except Exception as exc:
+        return (
+            json.dumps(
+                {
+                    "status": "error",
+                    "error": str(exc),
+                }
+            ),
+            500,
+            {"Content-Type": "application/json"},
+        )

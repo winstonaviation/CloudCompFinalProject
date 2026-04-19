@@ -1,0 +1,3 @@
+Flask==3.0.3
+google-cloud-storage
+gunicorn==22.0.0

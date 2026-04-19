@@ -1,0 +1,182 @@
+{
+  "project_id": "leafy-bond-493717-c4",
+  "region": "us-east1",
+  "collected_at": "2026-04-19T00:56:53.057098+00:00",
+  "services": {
+    "api-handler": {
+      "low_load": {
+        "http_req_duration_ms": {
+          "avg": 63.18536,
+          "min": 42.2048,
+          "med": 58.9563,
+          "p90": 81.01050000000001,
+          "p95": 81.3747,
+          "max": 81.7389
+        },
+        "iterations": 5,
+        "requests": 5,
+        "http_req_failed_rate": 0.0,
+        "script": "low_load.js"
+      },
+      "medium_load": {
+        "http_req_duration_ms": {
+          "avg": 48.24684235050997,
+          "min": 26.2573,
+          "med": 45.7364,
+          "p90": 60.774,
+          "p95": 68.2975,
+          "max": 1441.873
+        },
+        "iterations": 15001,
+        "requests": 15001,
+        "http_req_failed_rate": 0.0,
+        "script": "medium_load.js"
+      },
+      "burst": {
+        "http_req_duration_ms": {
+          "avg": 611.5377948794907,
+          "min": 0.0,
+          "med": 249.6033,
+          "p90": 1906.1838,
+          "p95": 2093.8028999999997,
+          "max": 19994.204
+        },
+        "iterations": 10995,
+        "requests": 10995,
+        "http_req_failed_rate": 0.001455206912232833,
+        "script": "burst.js"
+      },
+      "cold_start": {
+        "http_req_duration_ms": {
+          "avg": 51.9659,
+          "min": 51.9659,
+          "med": 51.9659,
+          "p90": 51.9659,
+          "p95": 51.9659,
+          "max": 51.9659
+        },
+        "iterations": 1,
+        "requests": 1,
+        "http_req_failed_rate": 0.0,
+        "script": "cold_start.js"
+      }
+    },
+    "image-resizer": {
+      "low_load": {
+        "http_req_duration_ms": {
+          "avg": 401.21702,
+          "min": 226.7853,
+          "med": 314.7366,
+          "p90": 634.99504,
+          "p95": 717.4639199999999,
+          "max": 799.9328
+        },
+        "iterations": 5,
+        "requests": 5,
+        "http_req_failed_rate": 0.0,
+        "script": "low_load.js"
+      },
+      "medium_load": {
+        "http_req_duration_ms": {
+          "avg": 3449.5332424527196,
+          "min": 28.0082,
+          "med": 2328.0287,
+          "p90": 8057.8245400000005,
+          "p95": 9907.093999999997,
+          "max": 10609.4391
+        },
+        "iterations": 8513,
+        "requests": 8513,
+        "http_req_failed_rate": 0.058616233995066366,
+        "script": "medium_load.js"
+      },
+      "burst": {
+        "http_req_duration_ms": {
+          "avg": 7368.868348725917,
+          "min": 0.0,
+          "med": 10209.9309,
+          "p90": 10883.34882,
+          "p95": 11109.06612,
+          "max": 16022.477
+        },
+        "iterations": 1609,
+        "requests": 1609,
+        "http_req_failed_rate": 0.579241765071473,
+        "script": "burst.js"
+      },
+      "cold_start": {
+        "http_req_duration_ms": {
+          "avg": 276.5715,
+          "min": 276.5715,
+          "med": 276.5715,
+          "p90": 276.5715,
+          "p95": 276.5715,
+          "max": 276.5715
+        },
+        "iterations": 1,
+        "requests": 1,
+        "http_req_failed_rate": 0.0,
+        "script": "cold_start.js"
+      }
+    },
+    "cpu-sort": {
+      "low_load": {
+        "http_req_duration_ms": {
+          "avg": 493.38676,
+          "min": 92.6406,
+          "med": 112.9615,
+          "p90": 1249.0807000000002,
+          "p95": 1591.4035999999996,
+          "max": 1933.7265
+        },
+        "iterations": 5,
+        "requests": 5,
+        "http_req_failed_rate": 0.0,
+        "script": "low_load.js"
+      },
+      "medium_load": {
+        "http_req_duration_ms": {
+          "avg": 1251.1551527986974,
+          "min": 26.2656,
+          "med": 490.587,
+          "p90": 3708.1637000000023,
+          "p95": 5761.951379999999,
+          "max": 7856.376
+        },
+        "iterations": 14739,
+        "requests": 14739,
+        "http_req_failed_rate": 0.24377501865798223,
+        "script": "medium_load.js"
+      },
+      "burst": {
+        "http_req_duration_ms": {
+          "avg": 6567.925795192846,
+          "min": 0.0,
+          "med": 8993.1142,
+          "p90": 10706.76068,
+          "p95": 10884.743559999999,
+          "max": 14692.9484
+        },
+        "iterations": 1789,
+        "requests": 1789,
+        "http_req_failed_rate": 0.46674119619899385,
+        "script": "burst.js"
+      },
+      "cold_start": {
+        "http_req_duration_ms": {
+          "avg": 85.854,
+          "min": 85.854,
+          "med": 85.854,
+          "p90": 85.854,
+          "p95": 85.854,
+          "max": 85.854
+        },
+        "iterations": 1,
+        "requests": 1,
+        "http_req_failed_rate": 0.0,
+        "script": "cold_start.js"
+      }
+    }
+  },
+  "uploaded_to": "gs://gcp-testing-kt/k6-results/2026-04-19T01-07-46Z.json"
+}
