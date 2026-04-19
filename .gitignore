@@ -7,3 +7,4 @@ AWS/.env.development
 AWS/.env.test
 AWS/.env.production
 /venv
+AWS/.aws-sam
